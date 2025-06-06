@@ -1,0 +1,72 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install required packages
+  apt:
+    name:
+      - docker.io
+      - docker-compose
+      - nginx
+      - git
+    state: present
+
+- name: Enable and start Docker
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+
+
+- name: Create docker group (if not present)
+  group:
+    name: docker
+    state: present
+
+- name: Add user to docker group
+  user:
+    name: ubuntu
+    groups: docker
+    append: yes
+
+- name: Force Ansible to reconnect (for new group to apply)
+  meta: reset_connection
+
+
+- name: Enable and start NGINX
+  systemd:
+    name: nginx
+    enabled: yes
+    state: started
+
+- name: Initialize Docker Swarm (ignore if already initialized)
+  shell: docker swarm init || true
+
+- name: Copy custom NGINX config
+  template:
+    src: nginx-default.j2
+    dest: /etc/nginx/sites-available/default
+    mode: '0644'
+
+- name: Restart NGINX to apply config
+  systemd:
+    name: nginx
+    state: restarted
+
+- name: Clone your Yii2 repo
+  git:
+    repo: <RepoUrlWithPAT>
+    dest: /home/ubuntu/yii2-docker-app
+    version: main
+
+- name: Deploy Yii2 stack
+  shell: |
+    cd /home/ubuntu/yii2-docker-app
+    docker stack rm yii2-stack || true
+    sleep 10
+    docker stack deploy -c docker-compose.yml yii2-stack
+
+- name: Restart NGINX to apply config
+  systemd:
+    name: nginx
+    state: restarted
