@@ -24,7 +24,7 @@
 - Firewall and security groups allow inbound traffic on port 80 (HTTP)  
 - Yii2 app Docker image is available or can be built from source
 
-## How to Test Deployment
+## How to Test Deployment Efficently
 
 1. SSH into EC2 instance:
    ssh -i path/to/your-key.pem ubuntu@<EC2_PUBLIC_IP>
