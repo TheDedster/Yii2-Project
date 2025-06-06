@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  yii2-app:
+    image: yii2-app:latest
+    ports:
+      - target: 80
+        published: 8080
+        mode: host
+    volumes:
+      - ./app/runtime:/var/www/html/runtime
+      - ./app/web/assets:/var/www/html/web/assets
+    environment:
+      - YII_ENV=prod
+    depends_on:
+      - mysql
+    deploy:
+      replicas: 1  # Start with 1 replica
+      restart_policy:
+        condition: on-failure
+    networks:
+      - yii2-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: yii2basic
+      MYSQL_USER: yii2user
+      MYSQL_PASSWORD: yii2pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    networks:
+      - yii2-network
+
+volumes:
+  mysql_data:
+
+networks:
+  yii2-network:
+    driver: overlay
