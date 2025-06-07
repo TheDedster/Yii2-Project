@@ -24,19 +24,14 @@
 - Firewall and security groups allow inbound traffic on port 80 (HTTP)  
 - Yii2 app Docker image is available or can be built from source
 
-## How to Test Deployment Efficently
+## How to Test Deployment 
 
-1. SSH into EC2 instance:
-   ssh -i path/to/your-key.pem ubuntu@<EC2_PUBLIC_IP>
-2. Check Docker Swarm status:
-   docker info | grep Swarm
-3. Confirm Yii2 service is running:
-   docker info | grep Swarm
-4. Test NGINX config and reload if needed:
-   sudo nginx -t
-   sudo systemctl reload nginx
-5. Access your app at:
-   http://<EC2_PUBLIC_IP>/backend
-16. Troubleshoot with logs:
-    Docker logs: docker service logs <service_name>
-    NGINX logs: /var/log/nginx/error.log
+First Create the image from the Dockerfile and then push it to Dockerhub.
+Then Change the Image from Dockercompose . Then you can proceed with Ansible
+
+1). Go to ansible-project
+2). Replace the inventory values with your required values.
+3). Replace the Github Pat and Repo Value in setup/task/main.yml
+4). Change the image in Dockercompose file .
+5). Check SSH connectivity from web profile using  ` ansible -i inventory web -m ping `
+6). Initiate the Build Process using `ansible-playbook -i inventory playbook.yml`
